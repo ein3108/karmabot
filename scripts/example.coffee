@@ -13,7 +13,7 @@ module.exports = (robot) ->
   plusplus_re = /@([a-z0-9_\.]+)(\+{2,})/ig
   minusminus_re = /@([a-z0-9_\.]+)(\-{2,})/ig
   botname_re = ///^#{botname}$///g
-  userkarma_re = ///#{botname}\s+@([a-z0-9_\.]+)///g
+  userkarma_re = ///#{botname}\s+@([a-z0-9_\.]+)$///g
   leaderboard_re = ///#{botname}\s+leaderboard///g
   plusplus_minusminus_re = /@([a-z0-9_\.]+)[\+\-]{2,}/ig
 

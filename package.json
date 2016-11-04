@@ -2,7 +2,7 @@
   "name": "karmabot",
   "version": "0.0.0",
   "private": true,
-  "author": "brian@betaworks.com",
+  "author": "brian@betaworks.com, modified by hyk149@eng.ucsd.edu",
   "description": "Upvote for awesome, downvote for foolish",
   "dependencies": {
     "hubot": "^2.11.4",

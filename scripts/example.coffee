@@ -10,38 +10,47 @@
 
 module.exports = (robot) ->
   botname = process.env.HUBOT_SLACK_BOTNAME
-  plusplus_re = /@([a-z0-9_\-\.]+)\+{2,}/ig
-  minusminus_re = /@([a-z0-9_\-\.]+)\-{2,}/ig
-  plusplus_minusminus_re = /@([a-z0-9_\-\.]+)[\+\-]{2,}/ig
-  
+  plusplus_re = /@([a-z0-9_\.]+)(\+{2,})/ig
+  minusminus_re = /@([a-z0-9_\.]+)(\-{2,})/ig
+  botname_re = ///^#{botname}$///g
+  userkarma_re = ///#{botname}\s+@([a-z0-9_\.]+)$///g
+  leaderboard_re = ///#{botname}\s+leaderboard///g
+  plusplus_minusminus_re = /@([a-z0-9_\.]+)[\+\-]{2,}/ig
+
+  robot.hear botname_re, (msg) ->
+     msg.send "what's up?"
+
+  robot.hear userkarma_re, (msg) ->
+     while (match = userkarma_re.exec(msg.message))
+         user = match[1]
+         count = robot.brain.get(user)
+         if count != null
+             point_label = if count == 1 then "point" else "points"
+             msg.send "@#{user}: #{count} " + point_label
+         else
+             msg.send "@#{user} has no karma"
+
   robot.hear plusplus_minusminus_re, (msg) ->
      sending_user = msg.message.user.name
      res = ''
      while (match = plusplus_re.exec(msg.message))
-         user = match[1].replace(/\-+$/g, '')
+         user = match[1]
+         pluses = match[2]
          if user != sending_user
-            count = (robot.brain.get(user) or 0) + 1
+            count = (robot.brain.get(user) or 0) + pluses.length - 1
             robot.brain.set user, count
-            res += "@#{user}++ [woot! now at #{count}]\n"
+            res += "@#{user}#{pluses} [woot! now at #{count}]\n"
          else if process.env.KARMABOT_NO_GIF
             res += process.env.KARMABOT_NO_GIF
      while (match = minusminus_re.exec(msg.message))
-         user = match[1].replace(/\-+$/g, '')
-         count = (robot.brain.get(user) or 0) - 1
+         user = match[1]
+         minuses = match[2]
+         count = (robot.brain.get(user) or 0) - minuses.length + 1
          robot.brain.set user, count
-         res += "@#{user}-- [ouch! now at #{count}]\n"
+         res += "@#{user}#{minuses} [ouch! now at #{count}]\n"
      msg.send res.replace(/\s+$/g, '')
 
-  robot.hear /// #{botname} \s+ @([a-z0-9_\-\.]+) ///i, (msg) ->
-     user = msg.match[1].replace(/\-+$/g, '')
-     count = robot.brain.get(user)
-     if count != null
-         point_label = if count == 1 then "point" else "points"
-         msg.send "@#{user}: #{count} " + point_label
-     else
-         msg.send "@#{user} has no karma"
-
-  robot.hear /// #{botname} \s+ leaderboard ///i, (msg) ->
+  robot.hear leaderboard_re, (msg) ->
      users = robot.brain.data._private
      tuples = []
      for username, score of users
@@ -162,3 +171,4 @@ module.exports = (robot) ->
   # robot.respond /sleep it off/i, (msg) ->
   #   robot.brain.set 'totalSodas', 0
   #   robot.respond 'zzzzz'
+>>>>>>> a93b7f447eb3015a0ffc051c86f0ab9860d09467
